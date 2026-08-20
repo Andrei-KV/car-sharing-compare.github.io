@@ -3,666 +3,395 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Калькулятор Каршеринга Минск</title>
-  <!-- Telegram WebApp SDK -->
+  <title>Калькулятор Каршеринга Минск (Geely)</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg-color: #f1f5f9;
-      --card-bg: #ffffff;
-      --text-main: #0f172a;
-      --text-muted: #64748b;
-      --primary: #4338ca;
-      --primary-light: #e0e7ff;
-      --green-bg: #ecfdf5;
-      --green-border: #10b981;
-      --green-text: #047857;
-      --hello-red: #ef4444;
-      --anytime-orange: #f97316;
+      --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
+      --primary: #4338ca; --green: #059669; --green-bg: #ecfdf5;
+      --hello: #dc2626; --hello-bg: #fef2f2;
+      --anytime: #ea580c; --anytime-bg: #fff7ed;
       --border: #cbd5e1;
     }
+    *, *:before, *:after { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 10px; background: var(--bg); color: var(--text); -webkit-tap-highlight-color: transparent; }
+    .container { max-width: 480px; margin: 0 auto; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    h1 { font-size: 16px; font-weight: 800; margin: 0; }
+    .btn-edit { background: #e2e8f0; color: #334155; border: none; padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; }
+    
+    /* Зоны */
+    .tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; margin-bottom: 8px; }
+    .tab { padding: 8px 2px; border-radius: 8px; font-size: 11.5px; font-weight: 800; border: 1.5px solid var(--border); background: #fff; color: #475569; cursor: pointer; text-align: center; }
+    .tab.active-all { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .tab.active-hello { background: var(--hello); color: #fff; border-color: var(--hello); }
+    .tab.active-anytime { background: var(--anytime); color: #fff; border-color: var(--anytime); }
 
-    *, *:before, *:after {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      margin: 0;
-      padding: 12px;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      -webkit-tap-highlight-color: transparent;
-      overflow-x: hidden;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    .header-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      font-size: 18px;
-      font-weight: 800;
-      margin: 0;
-      color: var(--text-main);
-    }
-
-    .btn-editor-toggle {
-      background: #e2e8f0;
-      color: #334155;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      border: 1px solid #e2e8f0;
-      width: 100%;
-    }
-
-    .label {
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .input-row {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      margin-bottom: 10px;
-      width: 100%;
-    }
-
-    input[type="number"], select, input[type="text"] {
-      width: 100%;
-      min-width: 0;
-      height: 44px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      padding: 0 10px;
-      font-size: 15px;
-      font-weight: 700;
-      background: #ffffff;
-      color: #0f172a;
-      outline: none;
-      -webkit-appearance: none;
-    }
-
-    input:focus, select:focus {
-      border-color: var(--primary);
-    }
-
-    .step-btn {
-      width: 44px;
-      min-width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      border: 1.5px solid var(--border);
-      background: #f8fafc;
-      color: #0f172a;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .step-btn:active { background: #e2e8f0; }
-
-    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-    .chip {
-      font-size: 11px;
-      font-weight: 700;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: #f1f5f9;
-      color: #334155;
-      border: 1px solid #cbd5e1;
-      cursor: pointer;
-    }
-    .chip:active { background: #e2e8f0; }
+    .card { background: var(--card); border-radius: 12px; padding: 12px; margin-bottom: 8px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .label { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .row { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+    input[type="number"], select { width: 100%; min-width: 0; height: 38px; border: 1.5px solid var(--border); border-radius: 8px; padding: 0 8px; font-size: 15px; font-weight: 700; background: #fff; color: var(--text); }
+    .step-btn { width: 38px; min-width: 38px; height: 38px; border-radius: 8px; border: 1.5px solid var(--border); background: #f8fafc; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    
+    .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px; }
+    .chip { font-size: 10.5px; font-weight: 700; padding: 4px 7px; border-radius: 6px; background: #f1f5f9; color: #334155; border: 1px solid var(--border); cursor: pointer; }
     .chip.amber { background: #fef3c7; color: #92400e; border-color: #fde68a; }
 
-    .summary-box {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 6px;
-      border: 1px solid #e2e8f0;
-      font-size: 13px;
-      color: #1e293b;
-    }
-    .summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; color: #475569; }
-    .summary-row strong { color: #0f172a; font-weight: 700; }
-    .summary-row.total {
-      font-weight: 800;
-      font-size: 14px;
-      margin-top: 6px;
-      border-top: 1px solid #cbd5e1;
-      padding-top: 6px;
-      color: #0f172a;
-    }
+    .summary { background: #f8fafc; border-radius: 8px; padding: 8px; font-size: 11.5px; border: 1px solid #e2e8f0; }
+    .s-row { display: flex; justify-content: space-between; margin-bottom: 2px; color: #475569; }
+    .s-row.tot { font-weight: 800; font-size: 12.5px; border-top: 1px solid var(--border); padding-top: 4px; margin-top: 4px; color: var(--text); }
 
-    .btn-navi {
-      display: block;
-      width: 100%;
-      height: 44px;
-      background: #ea580c;
-      color: #ffffff !important;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 800;
-      text-align: center;
-      line-height: 44px;
-      text-decoration: none;
-      margin-top: 12px;
-      cursor: pointer;
-      box-shadow: 0 3px 6px rgba(234, 88, 12, 0.25);
-    }
-    .btn-navi:active { background: #c2410c; }
+    .btn-navi { width: 100%; height: 40px; background: #ea580c; color: #fff; border: none; border-radius: 8px; font-size: 12.5px; font-weight: 800; cursor: pointer; margin-top: 8px; }
+    
+    .filters { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+    .sec-head { font-size: 11px; font-weight: 900; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; margin: 10px 0 4px 0; }
+    .sec-h { background: var(--hello-bg); color: var(--hello); border: 1px solid #fecaca; }
+    .sec-a { background: var(--anytime-bg); color: var(--anytime); border: 1px solid #fed7aa; }
 
-    .result-card {
-      background: #ffffff;
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 10px;
-      border: 1.5px solid #e2e8f0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #0f172a;
-      width: 100%;
-    }
-    .result-card.best {
-      border: 2px solid var(--green-border);
-      background: var(--green-bg);
-      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
-    }
+    .res-card { background: #fff; border-radius: 10px; padding: 8px 10px; margin-bottom: 6px; border: 1.5px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .res-card.best { border: 2px solid var(--green); background: var(--green-bg); }
+    .badge { display: inline-block; font-size: 9px; font-weight: 800; padding: 2px 5px; border-radius: 4px; color: #fff; }
+    .b-h { background: var(--hello); } .b-a { background: var(--anytime); }
+    .title { font-weight: 800; font-size: 12px; margin: 2px 0; color: var(--text); }
+    .desc { font-size: 10.5px; color: var(--muted); font-weight: 600; }
+    .price { font-size: 15.5px; font-weight: 900; color: var(--primary); white-space: nowrap; }
+    .best-tag { font-size: 9px; font-weight: 900; color: var(--green); text-transform: uppercase; }
 
-    .provider-badge {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 900;
-      padding: 2px 6px;
-      border-radius: 6px;
-      color: #ffffff;
-      margin-right: 4px;
-      letter-spacing: 0.3px;
-    }
-    .provider-hello { background: var(--hello-red); }
-    .provider-anytime { background: var(--anytime-orange); }
-
-    .tariff-title {
-      font-weight: 800;
-      font-size: 13px;
-      margin: 2px 0;
-      color: #0f172a;
-    }
-    .tariff-desc {
-      font-size: 11px;
-      color: #64748b;
-      font-weight: 600;
-    }
-
-    .price-tag {
-      font-size: 18px;
-      font-weight: 900;
-      color: var(--primary);
-      white-space: nowrap;
-    }
-    .best-tag {
-      font-size: 10px;
-      font-weight: 900;
-      color: var(--green-text);
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-
-    /* Модальное окно редактора */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.75);
-      z-index: 1000;
-      overflow-y: auto;
-      padding: 8px;
-      -webkit-overflow-scrolling: touch;
-    }
-    .modal-content {
-      background: #ffffff;
-      border-radius: 16px;
-      width: 100%;
-      max-width: 460px;
-      margin: 10px auto 30px auto;
-      padding: 14px;
-      color: #0f172a;
-    }
-    .editor-item {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 10px;
-      margin-bottom: 10px;
-      width: 100%;
-      overflow: hidden;
-    }
-    .editor-item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      width: 100%;
-    }
-    .grid-2 > div {
-      min-width: 0;
-      width: 100%;
-    }
-    .grid-2 label {
-      display: block;
-      font-size: 10px;
-      font-weight: 700;
-      color: #64748b;
-      margin-bottom: 2px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .grid-2 input {
-      height: 38px;
-      font-size: 14px;
-      padding: 0 8px;
-      width: 100%;
-    }
-
-    .btn-action {
-      height: 42px;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 13px;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .btn-save { background: var(--primary); color: #ffffff; flex: 1; }
-    .btn-cancel { background: #e2e8f0; color: #334155; width: 80px; }
-    .btn-reset { background: #fee2e2; color: #b91c1c; margin-top: 8px; width: 100%; }
-    .btn-add { background: #ecfdf5; color: #047857; border: 1px dashed #10b981; margin-bottom: 10px; width: 100%; }
-
-    @media (max-width: 350px) {
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-    }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; overflow-y: auto; padding: 8px; }
+    .modal-box { background: #fff; border-radius: 12px; max-width: 460px; margin: 10px auto; padding: 12px; }
+    .ed-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 8px; margin-bottom: 6px; font-size: 11.5px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 3px; }
+    .grid2 label { font-size: 9px; font-weight: bold; color: var(--muted); display: block; }
+    .grid2 input { height: 30px; font-size: 12px; padding: 0 4px; }
   </style>
 </head>
 <body>
 <div class="container">
-  <div class="header-row">
-    <h1>🚗 Каршеринг Минск</h1>
-    <button class="btn-editor-toggle" onclick="openEditor()">⚙️ Тарифы</button>
+  <div class="header">
+    <h1>🚗 Минск: Hello / Anytime (Geely)</h1>
+    <button class="btn-edit" onclick="openModal()">⚙️ Редактор</button>
+  </div>
+
+  <div class="tabs">
+    <button id="tAll" class="tab active-all" onclick="setZone('ALL')">Все (Сравнение)</button>
+    <button id="tHello" class="tab" onclick="setZone('HELLO')">🔴 Hello</button>
+    <button id="tAnytime" class="tab" onclick="setZone('ANYTIME')">🟠 Anytime</button>
   </div>
 
   <div class="card">
     <div class="label">Расстояние по навигатору (км)</div>
-    <div class="input-row">
-      <button class="step-btn" onclick="adjustDist(-1)">-</button>
-      <input type="number" id="distInput" value="12" step="0.5" min="0.5" oninput="calculate()">
-      <button class="step-btn" onclick="adjustDist(1)">+</button>
+    <div class="row">
+      <button class="step-btn" onclick="adjDist(-1)">-</button>
+      <input type="number" id="dist" value="12" step="0.5" oninput="calc()">
+      <button class="step-btn" onclick="adjDist(1)">+</button>
     </div>
-    <div class="chip-group">
-      <button class="chip" onclick="adjustDist(-2)">-2 км</button>
-      <button class="chip" onclick="adjustDist(2)">+2 км</button>
-      <button class="chip" onclick="adjustDist(5)">+5 км</button>
-      <button class="chip" onclick="adjustDist(10)">+10 км (МКАД)</button>
+    <div class="chips">
+      <button class="chip" onclick="adjDist(-2)">-2 км</button>
+      <button class="chip" onclick="adjDist(2)">+2 км</button>
+      <button class="chip" onclick="adjDist(5)">+5 км</button>
+      <button class="chip" onclick="adjDist(10)">+10 км (МКАД)</button>
     </div>
 
     <div class="label">Время движения с пробками (мин)</div>
-    <div class="input-row">
-      <button class="step-btn" onclick="adjustTime(-5)">-</button>
-      <input type="number" id="timeInput" value="25" step="1" min="1" oninput="calculate()">
-      <button class="step-btn" onclick="adjustTime(5)">+</button>
+    <div class="row">
+      <button class="step-btn" onclick="adjTime(-5)">-</button>
+      <input type="number" id="time" value="25" step="1" oninput="calc()">
+      <button class="step-btn" onclick="adjTime(5)">+</button>
     </div>
-    <div class="chip-group">
-      <button class="chip amber" onclick="adjustTime(5)">+5 мин (светофоры)</button>
-      <button class="chip amber" onclick="adjustTime(10)">+10 мин (пробка)</button>
-      <button class="chip amber" onclick="adjustTime(20)">+20 мин (час пик)</button>
+    <div class="chips">
+      <button class="chip amber" onclick="adjTime(5)">+5 мин (светофоры)</button>
+      <button class="chip amber" onclick="adjTime(10)">+10 мин (пробка)</button>
+      <button class="chip amber" onclick="adjTime(20)">+20 мин (час пик)</button>
     </div>
 
     <div class="label">Остановки / Ожидание (мин)</div>
-    <div class="input-row">
-      <button class="step-btn" onclick="adjustStop(-5)">-</button>
-      <input type="number" id="stopInput" value="0" step="5" min="0" oninput="calculate()">
-      <button class="step-btn" onclick="adjustStop(5)">+</button>
+    <div class="row">
+      <button class="step-btn" onclick="adjStop(-5)">-</button>
+      <input type="number" id="stop" value="0" step="5" oninput="calc()">
+      <button class="step-btn" onclick="adjStop(5)">+</button>
     </div>
 
-    <div class="summary-box">
-      <div class="summary-row"><span>Расчетная дистанция (+5% буфер):</span><strong id="finalDistText">12.6 км</strong></div>
-      <div class="summary-row"><span>Время движения (+10% буфер):</span><strong id="finalDriveText">27.5 мин</strong></div>
-      <div class="summary-row total"><span>Итоговое время поездки:</span><strong id="totalTripText" style="color:var(--green-text)">28 мин</strong></div>
+    <div class="summary">
+      <div class="s-row"><span>Дистанция (+5% буфер):</span><strong id="fDist">12.6 км</strong></div>
+      <div class="s-row"><span>Движение (+10% буфер):</span><strong id="fDrive">27.5 мин</strong></div>
+      <div class="s-row tot"><span>Итоговое время:</span><strong id="fTot" style="color:var(--green)">28 мин</strong></div>
     </div>
 
-    <button class="btn-navi" onclick="openYandexNavi()">📍 Открыть Яндекс.Навигатор</button>
+    <button class="btn-navi" onclick="openNavi()">📍 Открыть Яндекс.Карты</button>
   </div>
 
-  <div class="card">
-    <div class="label">Класс авто</div>
-    <select id="classFilter" onchange="calculate()">
-      <option value="ALL">Все классы (Эконом и Комфорт)</option>
-      <option value="ECONOMY">Только Эконом</option>
-      <option value="COMFORT">Только Комфорт</option>
-    </select>
+  <div class="filters">
+    <div>
+      <div class="label">Модель Geely</div>
+      <select id="fModel" onchange="calc()">
+        <option value="ALL">Все модели Geely</option>
+        <option value="EMGRAND">Geely Emgrand</option>
+        <option value="COOLRAY">Geely Coolray</option>
+      </select>
+    </div>
+    <div>
+      <div class="label">Тип тарифа</div>
+      <select id="fType" onchange="calc()">
+        <option value="ALL">Все типы</option>
+        <option value="MINUTE">Минуты</option>
+        <option value="MIN_KM">Минуты и км</option>
+        <option value="HOURS">Часы и км</option>
+        <option value="DAYS">Сутки и км</option>
+      </select>
+    </div>
   </div>
 
-  <div class="label" style="margin-left: 4px; margin-bottom: 8px;">Выгодные варианты (от дешевых к дорогим):</div>
-  <div id="resultsList"></div>
+  <div id="results"></div>
 </div>
 
-<!-- Модальное окно Редактора Тарифов -->
-<div id="editorModal" class="modal-overlay">
-  <div class="modal-content">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h2 style="font-size:16px; margin:0;">⚙️ Редактор тарифов</h2>
-      <button onclick="closeEditor()" style="background:none; border:none; font-size:22px; font-weight:bold; cursor:pointer; padding:0 4px;">✕</button>
+<!-- Модальное окно Редактора -->
+<div id="modal" class="modal">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+      <strong style="font-size:13px;">⚙️ Редактор тарифов Geely</strong>
+      <button onclick="closeModal()" style="border:none; background:none; font-size:18px; cursor:pointer;">✕</button>
     </div>
-    <p style="font-size:11px; color:#64748b; margin-top:0; margin-bottom:10px;">Настройте актуальные цены. Данные сохраняются в памяти телефона.</p>
-
-    <button class="btn-action btn-add" onclick="addNewTariffPrompt()">+ Добавить свой тариф</button>
-    <div id="editorList"></div>
-
-    <button class="btn-action btn-reset" onclick="resetTariffsToDefault()">Сбросить к базовым тарифам</button>
-    <div style="display:flex; gap:8px; margin-top:12px;">
-      <button class="btn-action btn-cancel" onclick="closeEditor()">Отмена</button>
-      <button class="btn-action btn-save" onclick="saveEditorData()">💾 Сохранить</button>
+    <div id="edList" style="max-height:55vh; overflow-y:auto;"></div>
+    <button onclick="resetDefaults()" style="width:100%; background:#fee2e2; color:#b91c1c; border:none; padding:7px; border-radius:6px; font-weight:bold; margin-top:6px; cursor:pointer; font-size:11.5px;">Сбросить все тарифы</button>
+    <div style="display:flex; gap:6px; margin-top:6px;">
+      <button onclick="closeModal()" style="width:65px; background:#e2e8f0; border:none; padding:7px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:11.5px;">Отмена</button>
+      <button onclick="saveEd()" style="flex:1; background:var(--primary); color:#fff; border:none; padding:7px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:11.5px;">💾 Сохранить</button>
     </div>
   </div>
 </div>
 
 <script>
   const tg = window.Telegram?.WebApp;
-  if (tg) {
-    tg.expand();
-    tg.ready();
+  if (tg) { tg.expand(); tg.ready(); }
+
+  let activeZone = 'ALL';
+
+  function createHelloModelTariffs(pfx, modName, modKey, kmCost, driveMin, parkMin, packages) {
+    const list = [];
+    list.push({ id: pfx+'_min', prov: 'HELLO', mod: modKey, name: modName, tCat: 'MINUTE', sub: 'Поминутный (1 мин - '+driveMin+', стоянка - '+parkMin+')', base: 0, dR: driveMin, pR: parkMin, kR: 0, iMin: 0, en: true });
+    packages.forEach(p => {
+      list.push({ id: pfx+'_'+p.id, prov: 'HELLO', mod: modKey, name: modName, tCat: p.cat, sub: p.label+' (+'+kmCost+'/км)', base: p.price, dR: 0, pR: 0, kR: kmCost, iMin: p.min, en: true });
+    });
+    return list;
   }
 
-  // Базовые тарифы
-  const DEFAULT_TARIFFS = [
-    { id: 'h_min_eco', provider: 'HELLO', name: 'Hello Поминутный (VW Polo / Rio)', class: 'ECONOMY', type: 'MINUTE', driveRate: 0.43, parkRate: 0.10, kmRate: 0.0, enabled: true },
-    { id: 'h_fix_eco', provider: 'HELLO', name: 'Hello Фикс (Эконом)', class: 'ECONOMY', type: 'FIX', basePrice: 0.0, perKm: 0.52, perMin: 0.15, enabled: true },
-    { id: 'h_pkg_30m', provider: 'HELLO', name: 'Hello Пакет 30 мин + 15 км', class: 'ECONOMY', type: 'PACKAGE', price: 14.50, inclKm: 15, inclMin: 30, overKm: 0.40, overMin: 0.38, enabled: true },
-    { id: 'h_pkg_1h', provider: 'HELLO', name: 'Hello Пакет 1 час + 25 км', class: 'ECONOMY', type: 'PACKAGE', price: 23.00, inclKm: 25, inclMin: 60, overKm: 0.40, overMin: 0.38, enabled: true },
-
-    { id: 'h_min_comf', provider: 'HELLO', name: 'Hello Поминутный (Geely Coolray)', class: 'COMFORT', type: 'MINUTE', driveRate: 0.52, parkRate: 0.12, kmRate: 0.0, enabled: true },
-    { id: 'h_pkg_1h_comf', provider: 'HELLO', name: 'Hello Пакет 1 час + 25 км (Комфорт)', class: 'COMFORT', type: 'PACKAGE', price: 28.00, inclKm: 25, inclMin: 60, overKm: 0.45, overMin: 0.42, enabled: true },
-
-    { id: 'a_min_eco', provider: 'ANYTIME', name: 'Anytime Базовый (VW Polo / Solaris)', class: 'ECONOMY', type: 'MINUTE', driveRate: 0.44, parkRate: 0.09, kmRate: 0.0, enabled: true },
-    { id: 'a_fix_eco', provider: 'ANYTIME', name: 'Anytime Фикс (Эконом)', class: 'ECONOMY', type: 'FIX', basePrice: 0.0, perKm: 0.54, perMin: 0.14, enabled: true },
-    { id: 'a_pkg_30m', provider: 'ANYTIME', name: 'Anytime Проездной 30 мин + 15 км', class: 'ECONOMY', type: 'PACKAGE', price: 14.90, inclKm: 15, inclMin: 30, overKm: 0.42, overMin: 0.39, enabled: true },
-    { id: 'a_pkg_1h', provider: 'ANYTIME', name: 'Anytime Проездной 1 час + 20 км', class: 'ECONOMY', type: 'PACKAGE', price: 21.90, inclKm: 20, inclMin: 60, overKm: 0.42, overMin: 0.39, enabled: true },
-
-    { id: 'a_min_comf', provider: 'ANYTIME', name: 'Anytime Поминутный (Geely Coolray)', class: 'COMFORT', type: 'MINUTE', driveRate: 0.50, parkRate: 0.11, kmRate: 0.0, enabled: true },
-    { id: 'a_pkg_1h_comf', provider: 'ANYTIME', name: 'Anytime Проездной 1 час + 20 км (Комфорт)', class: 'COMFORT', type: 'PACKAGE', price: 26.50, inclKm: 20, inclMin: 60, overKm: 0.46, overMin: 0.44, enabled: true }
+  const emgPackages = [
+    { id: '30m', cat: 'MIN_KM', label: '30 мин', price: 5.90, min: 30 },
+    { id: '60m', cat: 'MIN_KM', label: '60 мин', price: 9.90, min: 60 },
+    { id: '120m', cat: 'MIN_KM', label: '120 мин', price: 15.90, min: 120 },
+    { id: '3h', cat: 'HOURS', label: '3 ч', price: 19.00, min: 180 },
+    { id: '6h', cat: 'HOURS', label: '6 ч', price: 29.00, min: 360 },
+    { id: '9h', cat: 'HOURS', label: '9 ч', price: 39.00, min: 540 },
+    { id: '1d', cat: 'DAYS', label: '1 сут', price: 49.00, min: 1440 },
+    { id: '2d', cat: 'DAYS', label: '2 сут', price: 96.00, min: 2880 },
+    { id: '3d', cat: 'DAYS', label: '3 сут', price: 139.00, min: 4320 }
   ];
 
-  function loadTariffs() {
-    try {
-      const saved = localStorage.getItem('minsk_carshare_tariffs');
-      if (saved) return JSON.parse(saved);
-    } catch(e) {}
-    return JSON.parse(JSON.stringify(DEFAULT_TARIFFS));
+  const crPackages = [
+    { id: '30m', cat: 'MIN_KM', label: '30 мин', price: 6.90, min: 30 },
+    { id: '60m', cat: 'MIN_KM', label: '60 мин', price: 10.90, min: 60 },
+    { id: '3h', cat: 'HOURS', label: '3 ч', price: 31.00, min: 180 },
+    { id: '6h', cat: 'HOURS', label: '6 ч', price: 41.00, min: 360 },
+    { id: '1d', cat: 'DAYS', label: '1 сут', price: 69.00, min: 1440 },
+    { id: '2d', cat: 'DAYS', label: '2 сут', price: 129.00, min: 2880 },
+    { id: '3d', cat: 'DAYS', label: '3 сут', price: 189.00, min: 4320 }
+  ];
+
+  function getBaseTariffs() {
+    let list = [];
+    // 3.1 Hello Geely Emgrand Flagship с оклейкой
+    list = list.concat(createHelloModelTariffs('h_emf_st', 'Geely Emgrand Flagship (с оклейкой)', 'EMGRAND', 0.49, 0.39, 0.17, emgPackages));
+    // 3.2 Hello Geely Emgrand Flagship
+    list = list.concat(createHelloModelTariffs('h_emf', 'Geely Emgrand Flagship', 'EMGRAND', 0.53, 0.39, 0.17, emgPackages));
+    // 3.3 Hello Geely Emgrand
+    list = list.concat(createHelloModelTariffs('h_emg', 'Geely Emgrand', 'EMGRAND', 0.49, 0.39, 0.17, emgPackages));
+    // 3.4 Hello Geely Coolray с оклейкой
+    list = list.concat(createHelloModelTariffs('h_cr_st', 'Geely Coolray (с оклейкой)', 'COOLRAY', 0.59, 0.49, 0.21, crPackages));
+    // 3.5 Hello Geely Coolray
+    list = list.concat(createHelloModelTariffs('h_cr', 'Geely Coolray', 'COOLRAY', 0.61, 0.49, 0.21, crPackages));
+    // 3.6 Hello Geely Coolray Flagship
+    list = list.concat(createHelloModelTariffs('h_crf', 'Geely Coolray Flagship', 'COOLRAY', 0.63, 0.49, 0.21, crPackages));
+
+    // ANYTIME TARIFFS
+    list.push({ id: 'a_emg_min', prov: 'ANYTIME', mod: 'EMGRAND', name: 'Anytime Geely Emgrand', tCat: 'MINUTE', sub: 'Поминутный (1 мин - 0.43, стоянка - 0.10)', base: 0, dR: 0.43, pR: 0.10, kR: 0, iMin: 0, en: true });
+    list.push({ id: 'a_emg_1h', prov: 'ANYTIME', mod: 'EMGRAND', name: 'Anytime Geely Emgrand', tCat: 'HOURS', sub: 'Проездной 1 ч + 20 км', base: 21.90, dR: 0, pR: 0, kR: 0.42, iMin: 60, en: true });
+    list.push({ id: 'a_emg_1d', prov: 'ANYTIME', mod: 'EMGRAND', name: 'Anytime Geely Emgrand', tCat: 'DAYS', sub: 'Проездной 1 сут + 70 км', base: 69.00, dR: 0, pR: 0, kR: 0.42, iMin: 1440, en: true });
+
+    list.push({ id: 'a_cr_min', prov: 'ANYTIME', mod: 'COOLRAY', name: 'Anytime Geely Coolray', tCat: 'MINUTE', sub: 'Поминутный (1 мин - 0.50, стоянка - 0.11)', base: 0, dR: 0.50, pR: 0.11, kR: 0, iMin: 0, en: true });
+    list.push({ id: 'a_cr_1h', prov: 'ANYTIME', mod: 'COOLRAY', name: 'Anytime Geely Coolray', tCat: 'HOURS', sub: 'Проездной 1 ч + 20 км', base: 26.50, dR: 0, pR: 0, kR: 0.46, iMin: 60, en: true });
+    list.push({ id: 'a_cr_1d', prov: 'ANYTIME', mod: 'COOLRAY', name: 'Anytime Geely Coolray', tCat: 'DAYS', sub: 'Проездной 1 сут + 70 км', base: 89.00, dR: 0, pR: 0, kR: 0.46, iMin: 1440, en: true });
+
+    return list;
   }
 
-  let tariffs = loadTariffs();
+  let tariffs = JSON.parse(localStorage.getItem('cs_geely_tariffs_v2')) || getBaseTariffs();
 
-  function haptic() {
-    if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
+  function setZone(zone) {
+    activeZone = zone;
+    document.getElementById('tAll').className = 'tab' + (zone==='ALL'?' active-all':'');
+    document.getElementById('tHello').className = 'tab' + (zone==='HELLO'?' active-hello':'');
+    document.getElementById('tAnytime').className = 'tab' + (zone==='ANYTIME'?' active-anytime':'');
+    calc();
   }
 
-  function adjustDist(delta) {
-    const el = document.getElementById('distInput');
-    el.value = Math.max(0.5, (parseFloat(el.value) || 10) + delta).toFixed(1);
-    haptic();
-    calculate();
+  function adjDist(d) {
+    const el = document.getElementById('dist');
+    el.value = Math.max(0.5, (parseFloat(el.value)||10)+d).toFixed(1);
+    calc();
+  }
+  function adjTime(d) {
+    const el = document.getElementById('time');
+    el.value = Math.max(1, (parseFloat(el.value)||20)+d).toFixed(0);
+    calc();
+  }
+  function adjStop(d) {
+    const el = document.getElementById('stop');
+    el.value = Math.max(0, (parseFloat(el.value)||0)+d).toFixed(0);
+    calc();
   }
 
-  function adjustTime(delta) {
-    const el = document.getElementById('timeInput');
-    el.value = Math.max(1, (parseFloat(el.value) || 20) + delta).toFixed(0);
-    haptic();
-    calculate();
+  function openNavi() {
+    const u = "https://yandex.by/maps/";
+    if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
   }
 
-  function adjustStop(delta) {
-    const el = document.getElementById('stopInput');
-    el.value = Math.max(0, (parseFloat(el.value) || 0) + delta).toFixed(0);
-    haptic();
-    calculate();
-  }
+  function calc() {
+    const bDist = parseFloat(document.getElementById('dist').value)||10;
+    const bDrive = parseFloat(document.getElementById('time').value)||20;
+    const stopM = parseFloat(document.getElementById('stop').value)||0;
+    const fMod = document.getElementById('fModel').value;
+    const fType = document.getElementById('fType').value;
 
-  function openYandexNavi() {
-    haptic();
-    const mapsWebUrl = "https://yandex.by/maps/";
-    if (tg && tg.openLink) {
-      tg.openLink(mapsWebUrl);
-    } else {
-      window.open(mapsWebUrl, '_blank');
-    }
-  }
+    const fDist = bDist * 1.05;
+    const fDrive = bDrive * 1.10;
+    const fTot = fDrive + stopM;
 
-  function calculate() {
-    const baseDist = parseFloat(document.getElementById('distInput').value) || 10;
-    const baseDrive = parseFloat(document.getElementById('timeInput').value) || 20;
-    const stopMin = parseFloat(document.getElementById('stopInput').value) || 0;
-    const classFilter = document.getElementById('classFilter').value;
+    document.getElementById('fDist').innerText = fDist.toFixed(1) + ' км';
+    document.getElementById('fDrive').innerText = fDrive.toFixed(0) + ' мин';
+    document.getElementById('fTot').innerText = Math.round(fTot) + ' мин';
 
-    const finalDist = baseDist * 1.05;
-    const finalDrive = baseDrive * 1.10;
-    const totalTrip = finalDrive + stopMin;
-
-    document.getElementById('finalDistText').innerText = finalDist.toFixed(1) + ' км';
-    document.getElementById('finalDriveText').innerText = finalDrive.toFixed(0) + ' мин';
-    document.getElementById('totalTripText').innerText = Math.round(totalTrip) + ' мин';
-
-    const results = [];
-
+    let items = [];
     tariffs.forEach(t => {
-      if (t.enabled === false) return;
-      if (classFilter !== 'ALL' && t.class !== classFilter) return;
+      if (!t.en) return;
+      if (activeZone !== 'ALL' && t.prov !== activeZone) return;
+      if (fMod !== 'ALL' && t.mod !== fMod) return;
+      if (fType !== 'ALL' && t.tCat !== fType) return;
 
       let cost = 0;
-      if (t.type === 'MINUTE') {
-        cost = (finalDrive * (t.driveRate || 0)) + (stopMin * (t.parkRate || 0)) + (finalDist * (t.kmRate || 0));
-      } else if (t.type === 'FIX') {
-        cost = (t.basePrice || 0) + (finalDist * (t.perKm || 0)) + (finalDrive * (t.perMin || 0)) + (stopMin * 0.10);
-      } else if (t.type === 'PACKAGE') {
-        const extraKm = Math.max(0, finalDist - (t.inclKm || 0));
-        const extraMin = Math.max(0, totalTrip - (t.inclMin || 0));
-        cost = (t.price || 0) + (extraKm * (t.overKm || 0)) + (extraMin * (t.overMin || 0));
+      if (t.tCat === 'MINUTE') {
+        cost = (fDrive * (t.dR||0)) + (stopM * (t.pR||0)) + (fDist * (t.kR||0));
+      } else {
+        const extraMin = Math.max(0, fTot - (t.iMin||0));
+        const overMinRate = (t.mod === 'COOLRAY' ? 0.49 : 0.39);
+        cost = (t.base||0) + (fDist * (t.kR||0)) + (extraMin * overMinRate);
       }
-
-      results.push({ ...t, calculatedCost: cost });
+      items.push({ ...t, calculated: cost });
     });
 
-    results.sort((a, b) => a.calculatedCost - b.calculatedCost);
+    items.sort((a,b) => a.calculated - b.calculated);
 
-    const listEl = document.getElementById('resultsList');
-    listEl.innerHTML = '';
-
-    if (results.length === 0) {
-      listEl.innerHTML = '<div style="padding:16px; text-align:center; color:#64748b;">Нет активных тарифов.</div>';
+    const res = document.getElementById('results');
+    res.innerHTML = '';
+    if (!items.length) {
+      res.innerHTML = '<div style="text-align:center; padding:15px; color:#64748b; font-size:12px;">Нет активных тарифов по фильтру.</div>';
       return;
     }
 
-    results.forEach((item, index) => {
-      const isBest = index === 0;
-      const card = document.createElement('div');
-      card.className = 'result-card' + (isBest ? ' best' : '');
-      const badgeClass = item.provider === 'HELLO' ? 'provider-hello' : 'provider-anytime';
+    if (activeZone === 'ALL') {
+      renderListSection(res, items, null, true);
+    } else {
+      const hClass = activeZone === 'HELLO' ? 'sec-h' : 'sec-a';
+      const hText = activeZone === 'HELLO' ? '🔴 Тарифы Hello' : '🟠 Тарифы Anytime';
+      res.innerHTML += `<div class="sec-head ${hClass}">${hText}</div>`;
+      renderListSection(res, items, null, false);
+    }
+  }
 
-      card.innerHTML = `
+  function renderListSection(parent, list, limit, showBest) {
+    list.forEach((item, idx) => {
+      const isBest = (showBest && idx === 0);
+      const el = document.createElement('div');
+      el.className = 'res-card' + (isBest ? ' best' : '');
+      const bClass = item.prov === 'HELLO' ? 'b-h' : 'b-a';
+
+      el.innerHTML = `
         <div style="flex:1; padding-right:6px; min-width:0;">
-          ${isBest ? '<div class="best-tag">★ Выгоднее всего</div>' : ''}
-          <div class="tariff-title">
-            <span class="provider-badge ${badgeClass}">${item.provider}</span>
-            ${item.name}
+          ${isBest ? '<div class="best-tag">★ Самый выгодный</div>' : ''}
+          <div class="title">
+            <span class="badge ${bClass}">${item.prov}</span> ${item.name}
           </div>
-          <div class="tariff-desc">
-            ${item.class === 'ECONOMY' ? 'Эконом' : 'Комфорт'} • ${item.type === 'MINUTE' ? 'Поминутный' : item.type === 'FIX' ? 'Фикс' : 'Пакет'}
-          </div>
+          <div class="desc">${item.sub}</div>
         </div>
-        <div style="text-align: right; min-width:80px;">
-          <div class="price-tag">${item.calculatedCost.toFixed(2)} BYN</div>
+        <div style="text-align:right;">
+          <div class="price">${item.calculated.toFixed(2)} BYN</div>
         </div>
       `;
-      listEl.appendChild(card);
+      parent.appendChild(el);
     });
   }
 
-  // ================= РЕДАКТОР ТАРИФОВ =================
-
-  function openEditor() {
-    renderEditorItems();
-    document.getElementById('editorModal').style.display = 'block';
+  // Редактор
+  function openModal() {
+    renderEd();
+    document.getElementById('modal').style.display = 'block';
   }
+  function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-  function closeEditor() {
-    document.getElementById('editorModal').style.display = 'none';
-  }
-
-  function renderEditorItems() {
-    const el = document.getElementById('editorList');
-    el.innerHTML = '';
-
+  function renderEd() {
+    const list = document.getElementById('edList');
+    list.innerHTML = '';
     tariffs.forEach((t, i) => {
-      const item = document.createElement('div');
-      item.className = 'editor-item';
-
-      let fieldsHtml = '';
-      if (t.type === 'MINUTE') {
-        fieldsHtml = `
-          <div class="grid-2">
-            <div><label>Мин. движения (BYN):</label><input type="number" step="0.01" value="${t.driveRate}" onchange="updateField(${i}, 'driveRate', this.value)"></div>
-            <div><label>Мин. ожидания (BYN):</label><input type="number" step="0.01" value="${t.parkRate}" onchange="updateField(${i}, 'parkRate', this.value)"></div>
+      const div = document.createElement('div');
+      div.className = 'ed-item';
+      let inputs = '';
+      if (t.tCat === 'MINUTE') {
+        inputs = `
+          <div class="grid2">
+            <div><label>Мин. движения (BYN):</label><input type="number" step="0.01" value="${t.dR}" onchange="upd(${i},'dR',this.value)"></div>
+            <div><label>Мин. стоянки (BYN):</label><input type="number" step="0.01" value="${t.pR}" onchange="upd(${i},'pR',this.value)"></div>
           </div>
         `;
-      } else if (t.type === 'FIX') {
-        fieldsHtml = `
-          <div class="grid-2">
-            <div><label>1 км пути (BYN):</label><input type="number" step="0.01" value="${t.perKm}" onchange="updateField(${i}, 'perKm', this.value)"></div>
-            <div><label>1 мин пути (BYN):</label><input type="number" step="0.01" value="${t.perMin}" onchange="updateField(${i}, 'perMin', this.value)"></div>
-          </div>
-        `;
-      } else if (t.type === 'PACKAGE') {
-        fieldsHtml = `
-          <div class="grid-2">
-            <div><label>Цена пакета (BYN):</label><input type="number" step="0.1" value="${t.price}" onchange="updateField(${i}, 'price', this.value)"></div>
-            <div><label>Вкл. км:</label><input type="number" step="1" value="${t.inclKm}" onchange="updateField(${i}, 'inclKm', this.value)"></div>
-            <div><label>Вкл. минут:</label><input type="number" step="1" value="${t.inclMin}" onchange="updateField(${i}, 'inclMin', this.value)"></div>
-            <div><label>Доп. км (BYN):</label><input type="number" step="0.01" value="${t.overKm}" onchange="updateField(${i}, 'overKm', this.value)"></div>
+      } else {
+        inputs = `
+          <div class="grid2">
+            <div><label>Базовая цена (BYN):</label><input type="number" step="0.1" value="${t.base}" onchange="upd(${i},'base',this.value)"></div>
+            <div><label>Цена за 1 км (BYN):</label><input type="number" step="0.01" value="${t.kR}" onchange="upd(${i},'kR',this.value)"></div>
           </div>
         `;
       }
-
-      item.innerHTML = `
-        <div class="editor-item-header">
-          <label style="font-weight:bold; font-size:12px; display:flex; align-items:center; gap:6px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-            <input type="checkbox" ${t.enabled !== false ? 'checked' : ''} onchange="updateField(${i}, 'enabled', this.checked)">
-            <span>${t.name}</span>
+      div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <label style="font-weight:bold; font-size:11.5px; display:flex; gap:4px; align-items:center;">
+            <input type="checkbox" ${t.en?'checked':''} onchange="upd(${i},'en',this.checked)">
+            <span>${t.prov} ${t.name} - ${t.sub}</span>
           </label>
-          <button onclick="deleteTariff(${i})" style="color:#ef4444; background:none; border:none; font-size:18px; cursor:pointer; padding:0 4px;">🗑</button>
         </div>
-        ${fieldsHtml}
+        ${inputs}
       `;
-      el.appendChild(item);
+      list.appendChild(div);
     });
   }
 
-  function updateField(index, field, value) {
-    if (field === 'enabled') {
-      tariffs[index][field] = value;
-    } else {
-      tariffs[index][field] = parseFloat(value) || 0;
+  function upd(i, f, v) {
+    if (f === 'en') tariffs[i][f] = v;
+    else tariffs[i][f] = parseFloat(v)||0;
+  }
+
+  function saveEd() {
+    localStorage.setItem('cs_geely_tariffs_v2', JSON.stringify(tariffs));
+    closeModal();
+    calc();
+  }
+
+  function resetDefaults() {
+    if (confirm('Сбросить все тарифы к начальным значениям?')) {
+      tariffs = getBaseTariffs();
+      saveEd();
+      renderEd();
     }
   }
 
-  function deleteTariff(index) {
-    if (confirm('Удалить этот тариф?')) {
-      tariffs.splice(index, 1);
-      renderEditorItems();
-    }
-  }
-
-  function addNewTariffPrompt() {
-    const name = prompt('Название тарифа (например: Hello Сутки 100 км):');
-    if (!name) return;
-    const provider = prompt('Провайдер (HELLO или ANYTIME):', 'HELLO').toUpperCase();
-    const price = parseFloat(prompt('Стоимость тарифа (BYN):', '45.0')) || 45.0;
-
-    tariffs.push({
-      id: 'custom_' + Date.now(),
-      provider: provider === 'ANYTIME' ? 'ANYTIME' : 'HELLO',
-      name: name,
-      class: 'ECONOMY',
-      type: 'PACKAGE',
-      price: price,
-      inclKm: 100,
-      inclMin: 1440,
-      overKm: 0.40,
-      overMin: 0.0,
-      enabled: true
-    });
-    renderEditorItems();
-  }
-
-  function saveEditorData() {
-    try {
-      localStorage.setItem('minsk_carshare_tariffs', JSON.stringify(tariffs));
-    } catch(e) {}
-    closeEditor();
-    calculate();
-  }
-
-  function resetTariffsToDefault() {
-    if (confirm('Сбросить все тарифы к значениям по умолчанию?')) {
-      tariffs = JSON.parse(JSON.stringify(DEFAULT_TARIFFS));
-      saveEditorData();
-      renderEditorItems();
-    }
-  }
-
-  calculate();
+  calc();
 </script>
 </body>
 </html>
