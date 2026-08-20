@@ -8,131 +8,285 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
-      --bg-color: var(--tg-theme-bg-color, #f4f6f9);
-      --text-color: var(--tg-theme-text-color, #1a1a1a);
-      --card-bg: var(--tg-theme-secondary-bg-color, #ffffff);
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --accent: #f59e0b;
-      --green: #10b981;
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #4338ca;
+      --primary-light: #e0e7ff;
+      --green-bg: #ecfdf5;
+      --green-border: #10b981;
+      --green-text: #047857;
       --hello-red: #ef4444;
       --anytime-orange: #f97316;
-      --border-color: rgba(0,0,0,0.08);
+      --border: #cbd5e1;
     }
+
+    * { box-sizing: border-box; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
-      padding: 16px;
+      padding: 14px;
       background-color: var(--bg-color);
-      color: var(--text-color);
-      box-sizing: border-box;
+      color: var(--text-main);
       -webkit-tap-highlight-color: transparent;
     }
+
     .container { max-width: 480px; margin: 0 auto; }
-    h1 { font-size: 20px; font-weight: 800; margin: 0 0 16px 0; text-align: center; }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text-main);
+    }
+
+    .btn-editor-toggle {
+      background: #e2e8f0;
+      color: #334155;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
     .card {
       background: var(--card-bg);
       border-radius: 16px;
       padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border: 1px solid var(--border-color);
+      margin-bottom: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
     }
-    .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
-    .input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
-    input[type="number"], select {
+
+    .label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+
+    input[type="number"], select, input[type="text"] {
       flex: 1;
       height: 44px;
-      border: 1px solid #d1d5db;
+      border: 1.5px solid var(--border);
       border-radius: 10px;
       padding: 0 12px;
       font-size: 16px;
-      font-weight: 600;
-      background: var(--card-bg);
-      color: var(--text-color);
-      box-sizing: border-box;
+      font-weight: 700;
+      background: #ffffff;
+      color: #0f172a;
+      outline: none;
     }
+
+    input:focus, select:focus {
+      border-color: var(--primary);
+    }
+
     .step-btn {
       width: 44px;
       height: 44px;
       border-radius: 10px;
-      border: 1px solid #d1d5db;
-      background: #f3f4f6;
-      font-size: 18px;
+      border: 1.5px solid var(--border);
+      background: #f8fafc;
+      color: #0f172a;
+      font-size: 20px;
       font-weight: bold;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
     }
+    .step-btn:active { background: #e2e8f0; }
+
     .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
     .chip {
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       padding: 6px 10px;
       border-radius: 8px;
-      background: #f3f4f6;
-      border: none;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
       cursor: pointer;
     }
-    .chip.amber { background: #fef3c7; color: #b45309; }
+    .chip:active { background: #e2e8f0; }
+    .chip.amber { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+
     .summary-box {
       background: #f8fafc;
       border-radius: 12px;
       padding: 12px;
-      margin-top: 8px;
+      margin-top: 6px;
+      border: 1px solid #e2e8f0;
       font-size: 13px;
+      color: #1e293b;
     }
-    .summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-    .summary-row.total { font-weight: bold; font-size: 14px; margin-top: 6px; border-top: 1px solid #e2e8f0; padding-top: 6px; }
-    .result-card {
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 10px;
-      border: 1px solid var(--border-color);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .result-card.best {
-      border: 2px solid var(--green);
-      background: #ecfdf5;
-    }
-    .provider-badge {
-      display: inline-block;
-      font-size: 11px;
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 5px; color: #475569; }
+    .summary-row strong { color: #0f172a; font-weight: 700; }
+    .summary-row.total {
       font-weight: 800;
-      padding: 2px 6px;
-      border-radius: 6px;
-      color: white;
-      margin-right: 6px;
+      font-size: 14px;
+      margin-top: 6px;
+      border-top: 1px solid #cbd5e1;
+      padding-top: 6px;
+      color: #0f172a;
     }
-    .provider-hello { background: var(--hello-red); }
-    .provider-anytime { background: var(--anytime-orange); }
-    .price-tag { font-size: 18px; font-weight: 900; color: var(--primary); }
-    .best-tag { font-size: 11px; font-weight: bold; color: var(--green); text-transform: uppercase; }
+
     .btn-navi {
       display: block;
       width: 100%;
       height: 46px;
-      background: var(--hello-red);
-      color: white;
+      background: #ea580c;
+      color: #ffffff !important;
       border: none;
       border-radius: 12px;
       font-size: 14px;
-      font-weight: bold;
+      font-weight: 800;
       text-align: center;
       line-height: 46px;
       text-decoration: none;
       margin-top: 12px;
       cursor: pointer;
+      box-shadow: 0 3px 6px rgba(234, 88, 12, 0.25);
     }
+    .btn-navi:active { background: #c2410c; }
+
+    .result-card {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1.5px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #0f172a;
+    }
+    .result-card.best {
+      border: 2px solid var(--green-border);
+      background: var(--green-bg);
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.15);
+    }
+
+    .provider-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 6px;
+      color: #ffffff;
+      margin-right: 6px;
+      letter-spacing: 0.3px;
+    }
+    .provider-hello { background: var(--hello-red); }
+    .provider-anytime { background: var(--anytime-orange); }
+
+    .tariff-title {
+      font-weight: 800;
+      font-size: 14px;
+      margin: 3px 0;
+      color: #0f172a;
+    }
+    .tariff-desc {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .price-tag {
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--primary);
+    }
+    .best-tag {
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--green-text);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    /* Модальное окно редактора */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.7);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    .modal-content {
+      background: #ffffff;
+      border-radius: 18px;
+      max-width: 500px;
+      margin: 20px auto;
+      padding: 18px;
+      color: #0f172a;
+    }
+    .editor-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .editor-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .grid-2 label { font-size: 10px; font-weight: 700; color: #64748b; }
+    .grid-2 input { height: 36px; font-size: 14px; }
+
+    .btn-action {
+      height: 42px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-save { background: var(--primary); color: #ffffff; flex: 1; }
+    .btn-cancel { background: #e2e8f0; color: #334155; width: 90px; }
+    .btn-reset { background: #fee2e2; color: #b91c1c; margin-top: 8px; width: 100%; }
+    .btn-add { background: #ecfdf5; color: #047857; border: 1px dashed #10b981; margin-bottom: 12px; width: 100%; }
   </style>
 </head>
 <body>
 <div class="container">
-  <h1>🚗 Сравнение Hello / Anytime</h1>
+  <div class="header-row">
+    <h1>🚗 Каршеринг Минск</h1>
+    <button class="btn-editor-toggle" onclick="openEditor()">⚙️ Тарифы</button>
+  </div>
 
   <div class="card">
     <div class="label">Расстояние по навигатору (км)</div>
@@ -170,14 +324,14 @@
     <div class="summary-box">
       <div class="summary-row"><span>Расчетная дистанция (+5% буфер):</span><strong id="finalDistText">12.6 км</strong></div>
       <div class="summary-row"><span>Время движения (+10% буфер):</span><strong id="finalDriveText">27.5 мин</strong></div>
-      <div class="summary-row total"><span>Итоговое время поездки:</span><strong id="totalTripText" style="color:var(--green)">28 мин</strong></div>
+      <div class="summary-row total"><span>Итоговое время поездки:</span><strong id="totalTripText" style="color:var(--green-text)">28 мин</strong></div>
     </div>
 
-    <button class="btn-navi" onclick="openYandexNavi()">Открыть Яндекс.Навигатор</button>
+    <button class="btn-navi" onclick="openYandexNavi()">📍 Открыть Яндекс.Навигатор</button>
   </div>
 
   <div class="card">
-    <div class="label">Фильтр по классу авто</div>
+    <div class="label">Класс авто</div>
     <select id="classFilter" onchange="calculate()">
       <option value="ALL">Все классы (Эконом и Комфорт)</option>
       <option value="ECONOMY">Только Эконом</option>
@@ -185,8 +339,28 @@
     </select>
   </div>
 
-  <div class="label" style="margin-left: 4px;">Сравнение тарифов (по возрастанию цены):</div>
+  <div class="label" style="margin-left: 4px; margin-bottom: 8px;">Выгодные варианты (от дешевых к дорогим):</div>
   <div id="resultsList"></div>
+</div>
+
+<!-- Модальное окно Редактора Тарифов -->
+<div id="editorModal" class="modal-overlay">
+  <div class="modal-content">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <h2 style="font-size:16px; margin:0;">⚙️ Настройка и редактор тарифов</h2>
+      <button onclick="closeEditor()" style="background:none; border:none; font-size:20px; font-weight:bold; cursor:pointer;">✕</button>
+    </div>
+    <p style="font-size:12px; color:#64748b; margin-top:0;">Изменяйте стоимость минут, километров и пакетов. Данные сохраняются в памяти вашего телефона.</p>
+
+    <button class="btn-action btn-add" onclick="addNewTariffPrompt()">+ Добавить свой тариф</button>
+    <div id="editorList"></div>
+
+    <button class="btn-action btn-reset" onclick="resetTariffsToDefault()">Сбросить все тарифы к начальным</button>
+    <div style="display:flex; gap:8px; margin-top:14px;">
+      <button class="btn-action btn-cancel" onclick="closeEditor()">Закрыть</button>
+      <button class="btn-action btn-save" onclick="saveEditorData()">💾 Сохранить и пересчитать</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -196,33 +370,37 @@
     tg.ready();
   }
 
-  // Тарифы Hello и Anytime (Эконом и Комфорт)
-  const TARIFFS = [
-    // HELLO ECONOMY
-    { provider: 'HELLO', name: 'Hello Поминутный (VW Polo / Kia Rio)', class: 'ECONOMY', type: 'MINUTE', driveRate: 0.43, parkRate: 0.10, kmRate: 0.0 },
-    { provider: 'HELLO', name: 'Hello Фикс (Эконом)', class: 'ECONOMY', type: 'FIX', basePrice: 0.0, perKm: 0.52, perMin: 0.15 },
-    { provider: 'HELLO', name: 'Hello Пакет 30 мин + 15 км', class: 'ECONOMY', type: 'PACKAGE', price: 14.50, inclKm: 15, inclMin: 30, overKm: 0.40, overMin: 0.38 },
-    { provider: 'HELLO', name: 'Hello Пакет 1 час + 25 км', class: 'ECONOMY', type: 'PACKAGE', price: 23.00, inclKm: 25, inclMin: 60, overKm: 0.40, overMin: 0.38 },
+  // Базовые тарифы по умолчанию
+  const DEFAULT_TARIFFS = [
+    { id: 'h_min_eco', provider: 'HELLO', name: 'Hello Поминутный (VW Polo / Rio)', class: 'ECONOMY', type: 'MINUTE', driveRate: 0.43, parkRate: 0.10, kmRate: 0.0, enabled: true },
+    { id: 'h_fix_eco', provider: 'HELLO', name: 'Hello Фикс (Эконом)', class: 'ECONOMY', type: 'FIX', basePrice: 0.0, perKm: 0.52, perMin: 0.15, enabled: true },
+    { id: 'h_pkg_30m', provider: 'HELLO', name: 'Hello Пакет 30 мин + 15 км', class: 'ECONOMY', type: 'PACKAGE', price: 14.50, inclKm: 15, inclMin: 30, overKm: 0.40, overMin: 0.38, enabled: true },
+    { id: 'h_pkg_1h', provider: 'HELLO', name: 'Hello Пакет 1 час + 25 км', class: 'ECONOMY', type: 'PACKAGE', price: 23.00, inclKm: 25, inclMin: 60, overKm: 0.40, overMin: 0.38, enabled: true },
 
-    // HELLO COMFORT
-    { provider: 'HELLO', name: 'Hello Поминутный (Geely Coolray / Atlas)', class: 'COMFORT', type: 'MINUTE', driveRate: 0.52, parkRate: 0.12, kmRate: 0.0 },
-    { provider: 'HELLO', name: 'Hello Пакет 1 час + 25 км (Комфорт)', class: 'COMFORT', type: 'PACKAGE', price: 28.00, inclKm: 25, inclMin: 60, overKm: 0.45, overMin: 0.42 },
+    { id: 'h_min_comf', provider: 'HELLO', name: 'Hello Поминутный (Geely Coolray)', class: 'COMFORT', type: 'MINUTE', driveRate: 0.52, parkRate: 0.12, kmRate: 0.0, enabled: true },
+    { id: 'h_pkg_1h_comf', provider: 'HELLO', name: 'Hello Пакет 1 час + 25 км (Комфорт)', class: 'COMFORT', type: 'PACKAGE', price: 28.00, inclKm: 25, inclMin: 60, overKm: 0.45, overMin: 0.42, enabled: true },
 
-    // ANYTIME ECONOMY
-    { provider: 'ANYTIME', name: 'Anytime Базовый (VW Polo / Hyundai Solaris)', class: 'ECONOMY', type: 'MINUTE', driveRate: 0.44, parkRate: 0.09, kmRate: 0.0 },
-    { provider: 'ANYTIME', name: 'Anytime Фикс (Эконом)', class: 'ECONOMY', type: 'FIX', basePrice: 0.0, perKm: 0.54, perMin: 0.14 },
-    { provider: 'ANYTIME', name: 'Anytime Проездной 30 мин + 15 км', class: 'ECONOMY', type: 'PACKAGE', price: 14.90, inclKm: 15, inclMin: 30, overKm: 0.42, overMin: 0.39 },
-    { provider: 'ANYTIME', name: 'Anytime Проездной 1 час + 20 км', class: 'ECONOMY', type: 'PACKAGE', price: 21.90, inclKm: 20, inclMin: 60, overKm: 0.42, overMin: 0.39 },
+    { id: 'a_min_eco', provider: 'ANYTIME', name: 'Anytime Базовый (VW Polo / Solaris)', class: 'ECONOMY', type: 'MINUTE', driveRate: 0.44, parkRate: 0.09, kmRate: 0.0, enabled: true },
+    { id: 'a_fix_eco', provider: 'ANYTIME', name: 'Anytime Фикс (Эконом)', class: 'ECONOMY', type: 'FIX', basePrice: 0.0, perKm: 0.54, perMin: 0.14, enabled: true },
+    { id: 'a_pkg_30m', provider: 'ANYTIME', name: 'Anytime Проездной 30 мин + 15 км', class: 'ECONOMY', type: 'PACKAGE', price: 14.90, inclKm: 15, inclMin: 30, overKm: 0.42, overMin: 0.39, enabled: true },
+    { id: 'a_pkg_1h', provider: 'ANYTIME', name: 'Anytime Проездной 1 час + 20 км', class: 'ECONOMY', type: 'PACKAGE', price: 21.90, inclKm: 20, inclMin: 60, overKm: 0.42, overMin: 0.39, enabled: true },
 
-    // ANYTIME COMFORT
-    { provider: 'ANYTIME', name: 'Anytime Поминутный (Geely Coolray)', class: 'COMFORT', type: 'MINUTE', driveRate: 0.50, parkRate: 0.11, kmRate: 0.0 },
-    { provider: 'ANYTIME', name: 'Anytime Проездной 1 час + 20 км (Комфорт)', class: 'COMFORT', type: 'PACKAGE', price: 26.50, inclKm: 20, inclMin: 60, overKm: 0.46, overMin: 0.44 }
+    { id: 'a_min_comf', provider: 'ANYTIME', name: 'Anytime Поминутный (Geely Coolray)', class: 'COMFORT', type: 'MINUTE', driveRate: 0.50, parkRate: 0.11, kmRate: 0.0, enabled: true },
+    { id: 'a_pkg_1h_comf', provider: 'ANYTIME', name: 'Anytime Проездной 1 час + 20 км (Комфорт)', class: 'COMFORT', type: 'PACKAGE', price: 26.50, inclKm: 20, inclMin: 60, overKm: 0.46, overMin: 0.44, enabled: true }
   ];
 
+  function loadTariffs() {
+    try {
+      const saved = localStorage.getItem('minsk_carshare_tariffs');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_TARIFFS));
+  }
+
+  let tariffs = loadTariffs();
+
   function haptic() {
-    if (tg?.HapticFeedback) {
-      tg.HapticFeedback.selectionChanged();
-    }
+    if (tg?.HapticFeedback) tg.HapticFeedback.selectionChanged();
   }
 
   function adjustDist(delta) {
@@ -246,9 +424,18 @@
     calculate();
   }
 
+  // Надежное открытие Яндекс.Навигатора из Telegram WebApp
   function openYandexNavi() {
     haptic();
-    window.location.href = "yandexnavi://build_route_on_map";
+    const naviAppUrl = "yandexnavi://build_route_on_map";
+    const mapsWebUrl = "https://yandex.by/maps/";
+
+    if (tg && tg.openLink) {
+      tg.openLink(mapsWebUrl);
+    } else {
+      window.location.href = naviAppUrl;
+      setTimeout(() => { window.location.href = mapsWebUrl; }, 600);
+    }
   }
 
   function calculate() {
@@ -267,18 +454,19 @@
 
     const results = [];
 
-    TARIFFS.forEach(t => {
+    tariffs.forEach(t => {
+      if (t.enabled === false) return;
       if (classFilter !== 'ALL' && t.class !== classFilter) return;
 
       let cost = 0;
       if (t.type === 'MINUTE') {
-        cost = (finalDrive * t.driveRate) + (stopMin * t.parkRate) + (finalDist * t.kmRate);
+        cost = (finalDrive * (t.driveRate || 0)) + (stopMin * (t.parkRate || 0)) + (finalDist * (t.kmRate || 0));
       } else if (t.type === 'FIX') {
-        cost = t.basePrice + (finalDist * t.perKm) + (finalDrive * t.perMin) + (stopMin * 0.10);
+        cost = (t.basePrice || 0) + (finalDist * (t.perKm || 0)) + (finalDrive * (t.perMin || 0)) + (stopMin * 0.10);
       } else if (t.type === 'PACKAGE') {
-        const extraKm = Math.max(0, finalDist - t.inclKm);
-        const extraMin = Math.max(0, totalTrip - t.inclMin);
-        cost = t.price + (extraKm * t.overKm) + (extraMin * t.overMin);
+        const extraKm = Math.max(0, finalDist - (t.inclKm || 0));
+        const extraMin = Math.max(0, totalTrip - (t.inclMin || 0));
+        cost = (t.price || 0) + (extraKm * (t.overKm || 0)) + (extraMin * (t.overMin || 0));
       }
 
       results.push({ ...t, calculatedCost: cost });
@@ -289,6 +477,11 @@
     const listEl = document.getElementById('resultsList');
     listEl.innerHTML = '';
 
+    if (results.length === 0) {
+      listEl.innerHTML = '<div style="padding:16px; text-align:center; color:#64748b;">Нет активных тарифов для выбранного фильтра.</div>';
+      return;
+    }
+
     results.forEach((item, index) => {
       const isBest = index === 0;
       const card = document.createElement('div');
@@ -296,13 +489,13 @@
       const badgeClass = item.provider === 'HELLO' ? 'provider-hello' : 'provider-anytime';
 
       card.innerHTML = `
-        <div>
+        <div style="flex:1; padding-right:8px;">
           ${isBest ? '<div class="best-tag">★ Выгоднее всего</div>' : ''}
-          <div style="font-weight: 700; font-size: 14px; margin: 2px 0;">
+          <div class="tariff-title">
             <span class="provider-badge ${badgeClass}">${item.provider}</span>
             ${item.name}
           </div>
-          <div style="font-size: 11px; color: #6b7280;">
+          <div class="tariff-desc">
             ${item.class === 'ECONOMY' ? 'Эконом' : 'Комфорт'} • ${item.type === 'MINUTE' ? 'Поминутный' : item.type === 'FIX' ? 'Фикс' : 'Пакет'}
           </div>
         </div>
@@ -314,7 +507,119 @@
     });
   }
 
-  // Первый запуск
+  // ================= РЕДАКТОР ТАРИФОВ =================
+
+  function openEditor() {
+    renderEditorItems();
+    document.getElementById('editorModal').style.display = 'block';
+  }
+
+  function closeEditor() {
+    document.getElementById('editorModal').style.display = 'none';
+  }
+
+  function renderEditorItems() {
+    const el = document.getElementById('editorList');
+    el.innerHTML = '';
+
+    tariffs.forEach((t, i) => {
+      const item = document.createElement('div');
+      item.className = 'editor-item';
+
+      let fieldsHtml = '';
+      if (t.type === 'MINUTE') {
+        fieldsHtml = `
+          <div class="grid-2">
+            <div><label>Мин. движения (BYN):</label><input type="number" step="0.01" value="${t.driveRate}" onchange="updateField(${i}, 'driveRate', this.value)"></div>
+            <div><label>Мин. ожидания (BYN):</label><input type="number" step="0.01" value="${t.parkRate}" onchange="updateField(${i}, 'parkRate', this.value)"></div>
+          </div>
+        `;
+      } else if (t.type === 'FIX') {
+        fieldsHtml = `
+          <div class="grid-2">
+            <div><label>1 км пути (BYN):</label><input type="number" step="0.01" value="${t.perKm}" onchange="updateField(${i}, 'perKm', this.value)"></div>
+            <div><label>1 мин пути (BYN):</label><input type="number" step="0.01" value="${t.perMin}" onchange="updateField(${i}, 'perMin', this.value)"></div>
+          </div>
+        `;
+      } else if (t.type === 'PACKAGE') {
+        fieldsHtml = `
+          <div class="grid-2">
+            <div><label>Базовая цена (BYN):</label><input type="number" step="0.1" value="${t.price}" onchange="updateField(${i}, 'price', this.value)"></div>
+            <div><label>Вкл. км:</label><input type="number" step="1" value="${t.inclKm}" onchange="updateField(${i}, 'inclKm', this.value)"></div>
+            <div><label>Вкл. минут:</label><input type="number" step="1" value="${t.inclMin}" onchange="updateField(${i}, 'inclMin', this.value)"></div>
+            <div><label>Перепробег за км (BYN):</label><input type="number" step="0.01" value="${t.overKm}" onchange="updateField(${i}, 'overKm', this.value)"></div>
+          </div>
+        `;
+      }
+
+      item.innerHTML = `
+        <div class="editor-item-header">
+          <label style="font-weight:bold; font-size:13px; display:flex; align-items:center; gap:6px;">
+            <input type="checkbox" ${t.enabled !== false ? 'checked' : ''} onchange="updateField(${i}, 'enabled', this.checked)">
+            ${t.name}
+          </label>
+          <button onclick="deleteTariff(${i})" style="color:#ef4444; background:none; border:none; font-size:16px; cursor:pointer;">🗑</button>
+        </div>
+        ${fieldsHtml}
+      `;
+      el.appendChild(item);
+    });
+  }
+
+  function updateField(index, field, value) {
+    if (field === 'enabled') {
+      tariffs[index][field] = value;
+    } else {
+      tariffs[index][field] = parseFloat(value) || 0;
+    }
+  }
+
+  function deleteTariff(index) {
+    if (confirm('Удалить этот тариф?')) {
+      tariffs.splice(index, 1);
+      renderEditorItems();
+    }
+  }
+
+  function addNewTariffPrompt() {
+    const name = prompt('Введите название нового тарифа (например: Hello Сутки 100 км):');
+    if (!name) return;
+    const provider = prompt('Провайдер (HELLO или ANYTIME):', 'HELLO').toUpperCase();
+    const price = parseFloat(prompt('Стоимость тарифа (BYN):', '45.0')) || 45.0;
+
+    tariffs.push({
+      id: 'custom_' + Date.now(),
+      provider: provider === 'ANYTIME' ? 'ANYTIME' : 'HELLO',
+      name: name,
+      class: 'ECONOMY',
+      type: 'PACKAGE',
+      price: price,
+      inclKm: 100,
+      inclMin: 1440,
+      overKm: 0.40,
+      overMin: 0.0,
+      enabled: true
+    });
+    renderEditorItems();
+  }
+
+  function saveEditorData() {
+    try {
+      localStorage.setItem('minsk_carshare_tariffs', JSON.stringify(tariffs));
+    } catch(e) {}
+    closeEditor();
+    calculate();
+  }
+
+  function resetTariffsToDefault() {
+    if (confirm('Сбросить все тарифы к значениям по умолчанию?')) {
+      tariffs = JSON.parse(JSON.stringify(DEFAULT_TARIFFS));
+      saveEditorData();
+      renderEditorItems();
+    }
+  }
+
+  // Запуск расчета
   calculate();
 </script>
 </body>
