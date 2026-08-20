@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Калькулятор Каршеринга Минск</title>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    :root {
+      --bg-color: var(--tg-theme-bg-color, #f4f6f9);
+      --text-color: var(--tg-theme-text-color, #1a1a1a);
+      --card-bg: var(--tg-theme-secondary-bg-color, #ffffff);
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent: #f59e0b;
+      --green: #10b981;
+      --hello-red: #ef4444;
+      --anytime-orange: #f97316;
+      --border-color: rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .container { max-width: 480px; margin: 0 auto; }
+    h1 { font-size: 20px; font-weight: 800; margin: 0 0 16px 0; text-align: center; }
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color);
+    }
+    .label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+    .input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+    input[type="number"], select {
+      flex: 1;
+      height: 44px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 16px;
+      font-weight: 600;
+      background: var(--card-bg);
+      color: var(--text-color);
+      box-sizing: border-box;
+    }
+    .step-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      background: #f3f4f6;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .chip-group { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .chip {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      border: none;
+      cursor: pointer;
+    }
+    .chip.amber { background: #fef3c7; color: #b45309; }
+    .summary-box {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 8px;
+      font-size: 13px;
+    }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+    .summary-row.total { font-weight: bold; font-size: 14px; margin-top: 6px; border-top: 1px solid #e2e8f0; padding-top: 6px; }
+    .result-card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .result-card.best {
+      border: 2px solid var(--green);
+      background: #ecfdf5;
+    }
+    .provider-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+      color: white;
+      margin-right: 6px;
+    }
+    .provider-hello { background: var(--hello-red); }
+    .provider-anytime { background: var(--anytime-orange); }
+    .price-tag { font-size: 18px; font-weight: 900; color: var(--primary); }
+    .best-tag { font-size: 11px; font-weight: bold; color: var(--green); text-transform: uppercase; }
+    .btn-navi {
+      display: block;
+      width: 100%;
+      height: 46px;
+      background: var(--hello-red);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 46px;
+      text-decoration: none;
+      margin-top: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>🚗 Сравнение Hello / Anytime</h1>
+
+  <div class="card">
+    <div class="label">Расстояние по навигатору (км)</div>
+    <div class="input-row">
+      <button class="step-btn" onclick="adjustDist(-1)">-</button>
+      <input type="number" id="distInput" value="12" step="0.5" min="0.5" oninput="calculate()">
+      <button class="step-btn" onclick="adjustDist(1)">+</button>
+    </div>
+    <div class="chip-group">
+      <button class="chip" onclick="adjustDist(-2)">-2 км</button>
+      <button class="chip" onclick="adjustDist(2)">+2 км</button>
+      <button class="chip" onclick="adjustDist(5)">+5 км</button>
+      <button class="chip" onclick="adjustDist(10)">+10 км (МКАД)</button>
+    </div>
+
+    <div class="label">Время движения с пробками (мин)</div>
+    <div class="input-row">
+      <button class="step-btn" onclick="adjustTime(-5)">-</button>
+      <input type="number" id="timeInput" value="25" step="1" min="1" oninput="calculate()">
+      <button class="step-btn" onclick="adjustTime(5)">+</button>
+    </div>
+    <div class="chip-group">
+      <button class="chip amber" onclick="adjustTime(5)">+5 мин (светофоры)</button>
+      <button class="chip amber" onclick="adjustTime(10)">+10 мин (пробка)</button>
+      <button class="chip amber" onclick="adjustTime(20)">+20 мин (час пик)</button>
+    </div>
+
+    <div class="label">Остановки / Ожидание (мин)</div>
+    <div class="input-row">
+      <button class="step-btn" onclick="adjustStop(-5)">-</button>
+      <input type="number" id="stopInput" value="0" step="5" min="0" oninput="calculate()">
+      <button class="step-btn" onclick="adjustStop(5)">+</button>
+    </div>
+
+    <div class="summary-box">
+      <div class="summary-row"><span>Расчетная дистанция (+5% буфер):</span><strong id="finalDistText">12.6 км</strong></div>
+      <div class="summary-row"><span>Время движения (+10% буфер):</span><strong id="finalDriveText">27.5 мин</strong></div>
+      <div class="summary-row total"><span>Итоговое время поездки:</span><strong id="totalTripText" style="color:var(--green)">28 мин</strong></div>
+    </div>
+
+    <button class="btn-navi" onclick="openYandexNavi()">Открыть Яндекс.Навигатор</button>
+  </div>
+
+  <div class="card">
+    <div class="label">Фильтр по классу авто</div>
+    <select id="classFilter" onchange="calculate()">
+      <option value="ALL">Все классы (Эконом и Комфорт)</option>
+      <option value="ECONOMY">Только Эконом</option>
+      <option value="COMFORT">Только Комфорт</option>
+    </select>
+  </div>
+
+  <div class="label" style="margin-left: 4px;">Сравнение тарифов (по возрастанию цены):</div>
+  <div id="resultsList"></div>
+</div>
+
+<script>
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.expand();
+    tg.ready();
+  }
+
+  // Тарифы Hello и Anytime (Эконом и Комфорт)
+  const TARIFFS = [
+    // HELLO ECONOMY
+    { provider: 'HELLO', name: 'Hello Поминутный (VW Polo / Kia Rio)', class: 'ECONOMY', type: 'MINUTE', driveRate: 0.43, parkRate: 0.10, kmRate: 0.0 },
+    { provider: 'HELLO', name: 'Hello Фикс (Эконом)', class: 'ECONOMY', type: 'FIX', basePrice: 0.0, perKm: 0.52, perMin: 0.15 },
+    { provider: 'HELLO', name: 'Hello Пакет 30 мин + 15 км', class: 'ECONOMY', type: 'PACKAGE', price: 14.50, inclKm: 15, inclMin: 30, overKm: 0.40, overMin: 0.38 },
+    { provider: 'HELLO', name: 'Hello Пакет 1 час + 25 км', class: 'ECONOMY', type: 'PACKAGE', price: 23.00, inclKm: 25, inclMin: 60, overKm: 0.40, overMin: 0.38 },
+
+    // HELLO COMFORT
+    { provider: 'HELLO', name: 'Hello Поминутный (Geely Coolray / Atlas)', class: 'COMFORT', type: 'MINUTE', driveRate: 0.52, parkRate: 0.12, kmRate: 0.0 },
+    { provider: 'HELLO', name: 'Hello Пакет 1 час + 25 км (Комфорт)', class: 'COMFORT', type: 'PACKAGE', price: 28.00, inclKm: 25, inclMin: 60, overKm: 0.45, overMin: 0.42 },
+
+    // ANYTIME ECONOMY
+    { provider: 'ANYTIME', name: 'Anytime Базовый (VW Polo / Hyundai Solaris)', class: 'ECONOMY', type: 'MINUTE', driveRate: 0.44, parkRate: 0.09, kmRate: 0.0 },
+    { provider: 'ANYTIME', name: 'Anytime Фикс (Эконом)', class: 'ECONOMY', type: 'FIX', basePrice: 0.0, perKm: 0.54, perMin: 0.14 },
+    { provider: 'ANYTIME', name: 'Anytime Проездной 30 мин + 15 км', class: 'ECONOMY', type: 'PACKAGE', price: 14.90, inclKm: 15, inclMin: 30, overKm: 0.42, overMin: 0.39 },
+    { provider: 'ANYTIME', name: 'Anytime Проездной 1 час + 20 км', class: 'ECONOMY', type: 'PACKAGE', price: 21.90, inclKm: 20, inclMin: 60, overKm: 0.42, overMin: 0.39 },
+
+    // ANYTIME COMFORT
+    { provider: 'ANYTIME', name: 'Anytime Поминутный (Geely Coolray)', class: 'COMFORT', type: 'MINUTE', driveRate: 0.50, parkRate: 0.11, kmRate: 0.0 },
+    { provider: 'ANYTIME', name: 'Anytime Проездной 1 час + 20 км (Комфорт)', class: 'COMFORT', type: 'PACKAGE', price: 26.50, inclKm: 20, inclMin: 60, overKm: 0.46, overMin: 0.44 }
+  ];
+
+  function haptic() {
+    if (tg?.HapticFeedback) {
+      tg.HapticFeedback.selectionChanged();
+    }
+  }
+
+  function adjustDist(delta) {
+    const el = document.getElementById('distInput');
+    el.value = Math.max(0.5, (parseFloat(el.value) || 10) + delta).toFixed(1);
+    haptic();
+    calculate();
+  }
+
+  function adjustTime(delta) {
+    const el = document.getElementById('timeInput');
+    el.value = Math.max(1, (parseFloat(el.value) || 20) + delta).toFixed(0);
+    haptic();
+    calculate();
+  }
+
+  function adjustStop(delta) {
+    const el = document.getElementById('stopInput');
+    el.value = Math.max(0, (parseFloat(el.value) || 0) + delta).toFixed(0);
+    haptic();
+    calculate();
+  }
+
+  function openYandexNavi() {
+    haptic();
+    window.location.href = "yandexnavi://build_route_on_map";
+  }
+
+  function calculate() {
+    const baseDist = parseFloat(document.getElementById('distInput').value) || 10;
+    const baseDrive = parseFloat(document.getElementById('timeInput').value) || 20;
+    const stopMin = parseFloat(document.getElementById('stopInput').value) || 0;
+    const classFilter = document.getElementById('classFilter').value;
+
+    const finalDist = baseDist * 1.05;
+    const finalDrive = baseDrive * 1.10;
+    const totalTrip = finalDrive + stopMin;
+
+    document.getElementById('finalDistText').innerText = finalDist.toFixed(1) + ' км';
+    document.getElementById('finalDriveText').innerText = finalDrive.toFixed(0) + ' мин';
+    document.getElementById('totalTripText').innerText = Math.round(totalTrip) + ' мин';
+
+    const results = [];
+
+    TARIFFS.forEach(t => {
+      if (classFilter !== 'ALL' && t.class !== classFilter) return;
+
+      let cost = 0;
+      if (t.type === 'MINUTE') {
+        cost = (finalDrive * t.driveRate) + (stopMin * t.parkRate) + (finalDist * t.kmRate);
+      } else if (t.type === 'FIX') {
+        cost = t.basePrice + (finalDist * t.perKm) + (finalDrive * t.perMin) + (stopMin * 0.10);
+      } else if (t.type === 'PACKAGE') {
+        const extraKm = Math.max(0, finalDist - t.inclKm);
+        const extraMin = Math.max(0, totalTrip - t.inclMin);
+        cost = t.price + (extraKm * t.overKm) + (extraMin * t.overMin);
+      }
+
+      results.push({ ...t, calculatedCost: cost });
+    });
+
+    results.sort((a, b) => a.calculatedCost - b.calculatedCost);
+
+    const listEl = document.getElementById('resultsList');
+    listEl.innerHTML = '';
+
+    results.forEach((item, index) => {
+      const isBest = index === 0;
+      const card = document.createElement('div');
+      card.className = 'result-card' + (isBest ? ' best' : '');
+      const badgeClass = item.provider === 'HELLO' ? 'provider-hello' : 'provider-anytime';
+
+      card.innerHTML = `
+        <div>
+          ${isBest ? '<div class="best-tag">★ Выгоднее всего</div>' : ''}
+          <div style="font-weight: 700; font-size: 14px; margin: 2px 0;">
+            <span class="provider-badge ${badgeClass}">${item.provider}</span>
+            ${item.name}
+          </div>
+          <div style="font-size: 11px; color: #6b7280;">
+            ${item.class === 'ECONOMY' ? 'Эконом' : 'Комфорт'} • ${item.type === 'MINUTE' ? 'Поминутный' : item.type === 'FIX' ? 'Фикс' : 'Пакет'}
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div class="price-tag">${item.calculatedCost.toFixed(2)} BYN</div>
+        </div>
+      `;
+      listEl.appendChild(card);
+    });
+  }
+
+  // Первый запуск
+  calculate();
+</script>
+</body>
+</html>
